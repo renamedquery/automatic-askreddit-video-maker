@@ -1,4 +1,4 @@
-import os, gtts, json, time, math, PIL, praw, PIL.Image, PIL.ImageDraw, PIL.ImageFont, moviepy.editor
+import os, gtts, PIL, praw, PIL.Image, PIL.ImageDraw, PIL.ImageFont, moviepy.editor, shutil
 
 class program: #the main class
     class output: #the class for controlled stdout within the program
@@ -51,6 +51,24 @@ class program: #the main class
             return [comments, sbmsn]
     class presets: #the class for the configuration variables
         numberOfAskredditCommentsToShow = 10 #will show the top x amount of comments from the post.
+    class utils:
+        def asciitize(string):
+            normalChars = [ #I dont know any better way to do this so I had to hardcode it
+                'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+                'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '`', '~', '!',
+                '@', '#', '$', '%', '^', '&', '*', '(', ')', '[', ']', '{', '}',
+                '|', '\\', '"', "'", ';', ':', ',', '<', '>', '.', '/', '?', ' ',
+                '-', '_', '+', '=', '\n'
+            ]
+            newString = ''
+            for each in string:
+                if (each.lower() in normalChars):
+                    pass
+                else:
+                    each = '?'
+                newString += each
+            return newString
     class images: #the class that has the functions for generating images
         def generateImageWithTextOnIt(text, dimensions = [1920, 1080], bgcolor = 'white', fgcolor = 'black'): #generates an image that can later be stitched into the video
             image = PIL.Image.new('RGB', (dimensions[0], dimensions[1]), bgcolor)
@@ -128,7 +146,7 @@ askRedditCommentList = program.reddit.getRepliesFromTopPost()
 commentUpvotesSorted = sorted(askRedditCommentList[0])
 commentUpvotesSorted.reverse()
 
-program.output.print('Found a post titled "{}" with {} upvotes that is in hot.'.format(askRedditCommentList[1].title, askRedditCommentList[1].score))
+program.output.print(program.utils.asciitize('Found a post titled "{}" with {} upvotes that is in hot.'.format(askRedditCommentList[1].title, askRedditCommentList[1].score)))
 
 if (program.presets.numberOfAskredditCommentsToShow > len(commentUpvotesSorted)):
     program.output.print('The number of comments you chose to display was larger than the amount of available comments - <program.presets.numberOfAskredditCommentsToShow> was changed to the max amount of comments and nothing more.')
@@ -178,4 +196,4 @@ finalVideo.write_videofile('output.mp4')
 
 program.output.print('Done!')
 
-os.rmdir('tmp')
+shutil.rmtree('tmp')
